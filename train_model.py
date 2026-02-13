@@ -6,6 +6,7 @@ from sklearn.compose import make_column_transformer
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import r2_score
 import pickle
+import numpy as np
 
 # Load the data
 print("Loading data...")
@@ -23,6 +24,7 @@ column_trans = make_column_transformer(
 )
 
 # Create the pipeline
+from sklearn.linear_model import Ridge
 scaler = StandardScaler()
 model = Ridge()
 
@@ -32,8 +34,9 @@ pipe = make_pipeline(column_trans, scaler, model)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
 # Train the model
-print("Training model...")
-pipe.fit(X_train, y_train)
+print("Training model with Log Transform...")
+import numpy as np
+pipe.fit(X_train, np.log1p(y_train))
 
 # Evaluate
 y_pred = pipe.predict(X_test)

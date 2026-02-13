@@ -14,16 +14,43 @@ def index():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    location = request.form.get('location')
-    bhk = request.form.get('bhk')
-    bath = request.form.get('bath')
-    sqft = request.form.get('total_sqft')
+    try:
+        # 1. Cast inputs safely
+        location = request.form.get('location')
+        bhk = float(request.form.get('bhk'))
+        bath = float(request.form.get('bath'))
+        sqft = float(request.form.get('total_sqft'))
 
-    print(location, bhk, bath, sqft)
-    input_data = pd.DataFrame([[location, sqft, bath, bhk]], columns=['location', 'total_sqft', 'bath', 'bhk'])
-    prediction = pipe.predict(input_data)[0]
+        # 2. Backend Guardrails
+        if location not in data['location'].unique():
+            return "Error: Unknown Location"
+        
+        # Strict validation for realistic inputs
+        if sqft < 300:
+             return "Error: Square Footage must be at least 300"
+        
+        if bhk <= 0 or bath <= 0:
+            return "Error: BHK and Bathrooms must be positive"
 
-    return str(np.round(prediction, 2))
+        print(location, bhk, bath, sqft)
+        
+        # Prepare input
+        input_data = pd.DataFrame([[location, sqft, bath, bhk]], columns=['location', 'total_sqft', 'bath', 'bhk'])
+        
+        # 3. Prediction & Inverse Log Transform
+        prediction_log_scale = pipe.predict(input_data)[0]
+        prediction = np.expm1(prediction_log_scale)
+
+        # 4. Floor Logic
+        prediction = max(0, prediction)
+
+        # 5. Formatted Output (₹XX.XX Lakhs)
+        return "₹" + str(np.round(prediction, 2)) + " Lakhs"
+
+    except ValueError:
+        return "Error: Invalid Input. Please enter numbers."
+    except Exception as e:
+        return f"Error: {e}"
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
