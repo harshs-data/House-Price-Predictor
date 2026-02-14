@@ -33,8 +33,17 @@ def predict():
         if sqft < 300:
              return "Error: Square Footage must be at least 300"
         
+        if sqft > 50000:
+            return "Error: Square Footage cannot exceed 50,000"
+        
         if bhk <= 0 or bath <= 0:
             return "Error: BHK and Bathrooms must be positive"
+        
+        if sqft / bhk < 300:
+            return "Error: Square Footage per BHK is suspiciously low (minimum 300 sqft/BHK)"
+
+        if bath > bhk + 2:
+             return "Error: Bathrooms exceed BHK by more than 2, which is suspicious"
 
         print(location, bhk, bath, sqft)
         

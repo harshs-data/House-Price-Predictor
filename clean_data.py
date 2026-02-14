@@ -15,10 +15,10 @@ def clean_data():
     print("Loading raw data...")
     df = pd.read_csv('Bengaluru_House_Data.csv')
     
-    # Drop unnecessary columns
+   
     df1 = df.drop(['area_type', 'society', 'balcony', 'availability'], axis='columns')
     
-    # Drop nulls
+    
     df2 = df1.dropna()
     
     # Fix BHK
