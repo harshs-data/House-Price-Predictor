@@ -9,8 +9,12 @@ pipe = pickle.load(open("RidgeModel.pkl", 'rb'))
 
 @app.route('/')
 def index():
+    return render_template('index.html')
+
+@app.route('/predict-page')
+def predict_page():
     locations = sorted(data['location'].unique())
-    return render_template('index.html', locations=locations)
+    return render_template('predict.html', locations=locations)
 
 @app.route('/predict', methods=['POST'])
 def predict():
